@@ -43,7 +43,7 @@ sub paste_scan {
 	for my $id ($data =~ /pastebin\.com\/(?:raw\.php\?i=)?([A-Za-z0-9]{8,10})\b/g) {
 		$Pastes{"pastebin_".$id} = { url => 'http://pastebin.com/raw.php?i='.$id };
 	}
-	for my $id ($data =~ /dpaste\.com\/([A-Za-z0-9]+)\//g) {
+	for my $id ($data =~ /dpaste\.com\/([A-Za-z0-9]+)\b/g) {
 		$Pastes{"dpaste_".$id} = { url => 'http://dpaste.com/'.$id.'.txt' };
 	}
 	for my $id ($data =~ /bpaste\.net\/(?:raw|show)\/([0-9]+)\//g) {
