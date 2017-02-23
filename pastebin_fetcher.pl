@@ -52,8 +52,11 @@ sub paste_scan {
 	for my $id ($data =~ /sprunge\.us\/([A-Za-z0-9]+)/g) {
 		$Pastes{"sprunge_".$id} = { url => 'http://sprunge.us/'.$id };
 	}
-	for my $id ($data =~ /pastebin.ca\/(?:raw\/)?([0-9]+)/g) {
+	for my $id ($data =~ /pastebin\.ca\/(?:raw\/)?([0-9]+)/g) {
 		$Pastes{"pastebinca_".$id} = { url => 'http://pastebin.ca/raw/'.$id };
+	}
+	for my $id ($data =~ /pastebucket\.com\/([0-9]+)/g) {
+		$Pastes{"pastebucket_".$id} = { url => 'http://pastebucket.com/paste/download/'.$id };
 	}
 
 	my @Time = localtime(time());
