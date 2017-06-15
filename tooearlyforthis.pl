@@ -64,11 +64,27 @@ sub time_remaining_check () {
 	return int($SpeakAfter - $Now);
 }
 
+my $ExtendRemaining = 0;
+my $ExtendExpire = 0;
+sub check_match ($) {
+	my ($line) = @_;
+	if ($ExtendRemaining && $ExtendExpire > time()) {
+		$ExtendRemaining--;
+		return 1;
+	}
+	my $target_regex = Irssi::settings_get_str('tooearlyforthis_target_regex');
+	return 0 unless ($line =~ m/$target_regex/i);
+	$ExtendRemaining = Irssi::settings_get_int('tooearlyforthis_extend_lines');
+	$ExtendExpire = time() + Irssi::settings_get_int('tooearlyforthis_extend_timeout');
+	return 1;
+}
+
 sub sig_send_text ($$$) {
 	my ($line, $server, $witem) = @_;
 	return unless (ref $server);
 	return unless ($witem && ($witem->{type} eq 'CHANNEL' || $witem->{type} eq 'QUERY'));
 	return unless should_trigger($server, $witem->{name});
+	return unless check_match($line);
 	my $TimeLeft = time_remaining_check();
 	return unless ($TimeLeft > 0);
 	Irssi::signal_stop();
@@ -81,6 +97,7 @@ sub sig_own_action ($$$) {
 	my ($server, $msg, $target) = @_;
 	return unless (ref $server);
 	return unless should_trigger($server, $target);
+	return unless check_match($msg);
 	my $TimeLeft = time_remaining_check();
 	return unless ($TimeLeft > 0);
 	Irssi::signal_stop();
@@ -89,9 +106,12 @@ sub sig_own_action ($$$) {
 }
 
 Irssi::settings_add_str($IRSSI{name}, 'tooearlyforthis_targets', '');
+Irssi::settings_add_str($IRSSI{name}, 'tooearlyforthis_target_regex', '');
 Irssi::settings_add_str($IRSSI{name}, 'tooearlyforthis_timefile', $ENV{HOME}.'/.tooearlyforthis.time');
 Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_newdayfirsthour', 4);
 Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_delayseconds', 3600);
+Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_extend_lines', 0);
+Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_extend_timeout', 300);
 Irssi::signal_add_first('send text', 'sig_send_text');
 Irssi::signal_add_first('message irc own_action', 'sig_own_action'); # SERVER_REC, char *msg, char *target
 Irssi::signal_add_first('message irc own_notice', 'sig_own_action'); # SERVER_REC, char *msg, char *target
