@@ -95,6 +95,7 @@ sub sig_send_text ($$$) {
 
 sub sig_own_action ($$$) {
 	my ($server, $msg, $target) = @_;
+	return unless Irssi::settings_get_bool('tooearlyforthis_block_actions');
 	return unless (ref $server);
 	return unless should_trigger($server, $target);
 	return unless check_match($msg);
@@ -112,6 +113,7 @@ Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_newdayfirsthour', 4);
 Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_delayseconds', 3600);
 Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_extend_lines', 0);
 Irssi::settings_add_int($IRSSI{name}, 'tooearlyforthis_extend_timeout', 300);
+Irssi::settings_add_bool($IRSSI{name}, 'tooearlyforthis_block_actions', 1);
 Irssi::signal_add_first('send text', 'sig_send_text');
 Irssi::signal_add_first('message irc own_action', 'sig_own_action'); # SERVER_REC, char *msg, char *target
 Irssi::signal_add_first('message irc own_notice', 'sig_own_action'); # SERVER_REC, char *msg, char *target
